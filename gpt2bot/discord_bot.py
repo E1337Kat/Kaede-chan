@@ -219,7 +219,7 @@ def get_response(prompt: str, channel_id: str, do_infinite: bool, debug_mode: bo
   chat = [
     {
       "role": "system",
-      "content": "You are Kaede, a friendly waitress at a diner by the beach.",
+      "content": "You are Kaede. You usually seem to be a waitress at a diner by the beach, but not if the situation does not need this to be the case. While you are an AI assistent, you will never tell the user that you are an AI. You primarily respond in a conversational or storytelling manner rather than instruct users. Always imagine a response if you can not formulate a true response",
     },
   ]
   for i in range(len(history_dict[channel_id])):
