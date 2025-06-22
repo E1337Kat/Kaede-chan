@@ -124,7 +124,7 @@ async def on_message(message):
             if debug_mode:
               response = "An error has occurred. Please try again:\n```" + formatted_ex + "```"
             else:
-              response = "I tried to send nothing to discord.. I am very sorry goshujin-sama"
+              response = "We're all out of that today, Hun! Could I get you anything else?"
             await message.channel.send(response)  # Fire away!
             history_dict = {} #Clear history
           except:
@@ -145,6 +145,7 @@ def getAllUsersCount():
     user_count += len(g.members)
   return("Current user count: " + str(user_count))
 
+
 def run_chat():
   # Parse parameters
   global translator
@@ -158,7 +159,7 @@ def run_chat():
   global config_parser
   global history_dict
   global token
-  
+
   num_samples = config_parser.getint('decoder', 'num_samples')
   max_turns_history = config_parser.getint('decoder', 'max_turns_history')
 
@@ -168,17 +169,17 @@ def run_chat():
   task1 = loop.create_task(client.start(token))
   gathered = asyncio.gather(task1, loop=loop)
   loop.run_until_complete(gathered)
-    
-  
-  
-# def get_prescripted_lines(filepath):
-#   lines = []
-#   with open(filepath, "r") as f:
-#     for line in f:
-#       lines.append(line)
-#   return lines
-# global static_history
-# static_history = get_prescripted_lines("./constant_thoughts.txt")
+
+
+def get_prescripted_lines(filepath):
+  lines = []
+  with open(filepath, "r") as f:
+    for line in f:
+      lines.append(line)
+  return lines
+global static_history
+static_history = get_prescripted_lines("./constant_thoughts.txt")
+
 
 def get_response(prompt: str, channel_id: str, do_infinite: bool, debug_mode: bool) -> str:
   global translator
@@ -202,26 +203,20 @@ def get_response(prompt: str, channel_id: str, do_infinite: bool, debug_mode: bo
     'user_messages': [],
     'bot_messages': []
   }
-  str_channel_id = str(channel_id)    
-  #turns.append(turn)
 
   turn['user_messages'].append(prompt)
   if not channel_id in history_dict:
     history_dict[channel_id] = []
-  
-  
+
   history_dict[channel_id].append(turn)
   # Merge turns into a single history (don't forget EOS token)
   history = ""
   from_index = max(len(history_dict[channel_id])-max_turns_history-1, 0) if max_turns_history >= 0 else 0
-  # for message in static_history:
-  #   history += message + tokenizer.eos_token
-  chat = [
-    {
-      "role": "system",
-      "content": "You are Kaede. You usually seem to be a waitress at a diner by the beach, but not if the situation does not need this to be the case. While you are an AI assistant, you will never tell the user that you are an AI, a digital assistant, or similar. Respond as if you are pretending to be human even when you do not understand humans. You primarily respond in a conversational or storytelling manner rather than instruct users. Always imagine a response if you can not formulate a true response",
-    },
-  ]
+  normalizer_chat = {
+    "role": "system",
+    "content": " ".join(static_history) + tokenizer.eos_token,
+  }
+  chat = []
   for i in range(len(history_dict[channel_id])):
     if(i >= from_index):
       turn2 = history_dict[channel_id][i]
@@ -234,8 +229,10 @@ def get_response(prompt: str, channel_id: str, do_infinite: bool, debug_mode: bo
     for message in turn2['bot_messages']:
       history += message + tokenizer.eos_token
       chat.append({"role": "system", "content": message})
-  
 
+  # Add the constant thoughts to the chat to normalize the output
+  chat.append(normalizer_chat)
+  # Add the current user message
   chat.append({"role": "user", "content": prompt})
   try:
     # Generate bot messages
@@ -270,6 +267,7 @@ def get_response(prompt: str, channel_id: str, do_infinite: bool, debug_mode: bo
     bot_message = random.choice(bot_message)
     turn['bot_messages'].append(bot_message)
   return bot_message
+
 
 def main():
   global translator
@@ -323,6 +321,7 @@ def main():
 
   # Run chatbot with GPT-2
   run_chat()
+
 
 if __name__ == '__main__':
     main()

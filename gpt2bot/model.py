@@ -147,8 +147,10 @@ def load_model(target_folder_name: str, config):
   # tokenizer = AutoTokenizer.from_pretrained("ross-dev/Jennifer-v1.0")
   # model = AutoModelForCausalLM.from_pretrained("ross-dev/Jennifer-v1.0") 
   # model_name = 'Qwen/Qwen2.5-1.5B'
-  tokenizer = AutoTokenizer.from_pretrained("Qwen/Qwen2.5-1.5B-Instruct", device_map='auto')
-  model = AutoModelForCausalLM.from_pretrained("Qwen/Qwen2.5-1.5B-Instruct")
+  checkpoint = "HuggingFaceTB/SmolLM2-1.7B-Instruct"
+  tokenizer = AutoTokenizer.from_pretrained(checkpoint, device_map='auto')
+
+  model = AutoModelForCausalLM.from_pretrained(checkpoint)
   # model = GPT2LMHeadModel(config)
   # model.load_state_dict(state_dict,strict=False)
   model.to(device)
