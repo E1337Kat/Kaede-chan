@@ -51,6 +51,12 @@ To reduce confusion, see the [TELEGRAM_README](/TELEGRAM_README.md). Install inf
 
 ## Updates
 
+#### 2025/02/02
+  - Update the model to Qwen2.5 1.5B Instruct
+  - Update python docker image to support deps
+  - Update deps
+  - Fix tabbing
+
 #### 2021/10/04
 
   - Update readme
